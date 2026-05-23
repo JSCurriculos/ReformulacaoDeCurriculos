@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Juliana Santiago | Reformulação de Currículos</title>
+  <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='70' fill='%23d4af37' font-family='monospace'>JS</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0f1a;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    /* SPLASH - mesma fonte do gerador */
+    .splash {
+      position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 30% 20%, #0a1a2a, #020b14);
+      backdrop-filter: blur(2px);
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      opacity: 1; visibility: visible; cursor: pointer;
+    }
+    .splash.hide { opacity: 0; visibility: hidden; }
+    #star-canvas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+    }
+    .splash-content {
+      position: relative; z-index: 2; text-align: center; color: white;
+      padding: 0 20px;
+    }
+    .splash-logo {
+      width: 170px; height: 170px; margin: 0 auto 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
+      border: 1px solid rgba(212,175,55,0.5);
+      box-shadow: 0 0 30px rgba(212,175,55,0.3);
+      animation: auraPulse 3s infinite;
+    }
+    @keyframes auraPulse {
+      0%,100% { box-shadow: 0 0 30px rgba(212,175,55,0.25); border-color: rgba(212,175,55,0.4); }
+      50% { box-shadow: 0 0 55px rgba(212,175,55,0.5); border-color: rgba(212,175,55,0.8); }
+    }
+    /* LOGO com Cormorant Garamond */
+    .splash-logo span {
+      font-size: 5rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f3df96, #d4af37);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 4px;
+    }
+    /* TÍTULO com Cormorant Garamond */
+    .splash h1 {
+      font-size: 2.8rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #fff, #e2c47c, #f3df96);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 12px;
+    }
+    /* SUBTÍTULO com Cormorant Garamond, mais elegante */
+    .splash p {
+      font-family: 'Cormorant Garamond', serif;
+      color: #cdba7a;
+      letter-spacing: 6px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .swipe {
+      margin-top: 40px;
+      animation: floatSmooth 2s infinite;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: #cdba7a;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+    }
+    @keyframes floatSmooth {
+      0%,100% { transform: translateY(0); opacity: 0.7; }
+      50% { transform: translateY(-10px); opacity: 1; }
+    }
+
+    /* FORMULÁRIO (mantido igual) */
+    .cadastro-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      position: relative;
+    }
+    .cadastro-container.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .star-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .star-bg i {
+      position: absolute;
+      color: #d4af37;
+      opacity: 0.6;
+      animation: rotateStar 8s linear infinite;
+    }
+    @keyframes rotateStar {
+      0% { transform: rotate(0deg) translateX(20px) rotate(0deg); opacity: 0.2; }
+      50% { opacity: 0.9; }
+      100% { transform: rotate(360deg) translateX(20px) rotate(-360deg); opacity: 0.2; }
+    }
+    .cadastro-card {
+      max-width: 560px;
+      width: 100%;
+      background: #111827;
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      border: 1px solid rgba(212,175,55,0.3);
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(2px);
+    }
+    .cadastro-header {
+      background: linear-gradient(135deg, #0f172a, #030712);
+      padding: 36px 32px;
+      text-align: center;
+      border-bottom: 1px solid rgba(212,175,55,0.3);
+    }
+    .cadastro-header i {
+      font-size: 3rem;
+      color: #d4af37;
+    }
+    .cadastro-header h2 {
+      font-size: 1.9rem;
+      margin-top: 12px;
+      color: white;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+    }
+    .cadastro-body {
+      padding: 32px 32px 38px;
+    }
+    .offer-highlight {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-left: 4px solid #d4af37;
+      border-radius: 24px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .offer-highlight i {
+      font-size: 2rem;
+      color: #d4af37;
+      margin-bottom: 12px;
+    }
+    .offer-highlight p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+    }
+    .offer-highlight .highlight {
+      color: #d4af37;
+      font-weight: 600;
+    }
+    .offer-highlight .price {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #d4af37;
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: 1px;
+    }
+    .input-group {
+      margin-bottom: 24px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #d4af37;
+    }
+    .input-group input {
+      width: 100%;
+      border: 1px solid #334155;
+      border-radius: 40px;
+      padding: 14px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      background: #1e293b;
+      color: #f1f5f9;
+      transition: 0.2s;
+    }
+    .input-group input:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 0 4px rgba(212,175,55,0.2);
+      background: #0f172a;
+    }
+    .btn-cadastrar {
+      background: #d4af37;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      border-radius: 60px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 8px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 18px rgba(212,175,55,0.3);
+    }
+    .btn-cadastrar:hover {
+      transform: translateY(-2px);
+      background: #c2a032;
+    }
+    .btn-cadastrar:disabled {
+      opacity: 0.7;
+      transform: none;
+      cursor: not-allowed;
+    }
+    .toast-msg {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 500;
+      z-index: 10000;
+      font-size: 0.85rem;
+      transition: 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .toast-msg.show {
+      opacity: 1;
+      bottom: 40px;
+    }
+    @media (max-width: 550px) {
+      .cadastro-card { border-radius: 32px; }
+      .cadastro-body { padding: 24px; }
+      .splash h1 { font-size: 2rem; }
+      .splash-logo span { font-size: 3.8rem; }
+      .splash p { font-size: 0.7rem; letter-spacing: 4px; }
+      .offer-highlight p { font-size: 0.85rem; }
+      .offer-highlight .price { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="splash" id="splashScreen">
+  <canvas id="star-canvas"></canvas>
+  <div class="splash-content">
+    <div class="splash-logo"><span>JS</span></div>
+    <h1>JULIANA SANTIAGO</h1>
+    <p>REFORMULAÇÃO DE CURRÍCULOS</p>
+    <div class="swipe"><i class="fas fa-hand-pointer"></i> Toque ou clique para iniciar seu cadastro</div>
+  </div>
+</div>
+
+<div class="cadastro-container" id="cadastroContainer">
+  <div class="star-bg" id="starBg"></div>
+  <div class="cadastro-card">
+    <div class="cadastro-header">
+      <i class="fas fa-file-alt"></i>
+      <h2>Cadastro</h2>
+      <p>Preencha os dados abaixo</p>
+    </div>
+    <div class="cadastro-body">
+      <div class="offer-highlight">
+        <i class="fas fa-chart-line"></i>
+        <p><span class="highlight">Seu currículo é o seu maior aliado profissional!</span></p>
+        <p>Você sabe aquele sentimento de enviar currículo atrás de currículo... mas nada acontece? Nem sempre é falta de oportunidade. O que está faltando é um currículo claro, objetivo e impactante!</p>
+        <p>Muitas vezes, recrutadores têm apenas segundos para revisar seu perfil. Nesse tempo, seu currículo precisa <span class="highlight">BRILHAR</span> e destacar suas principais competências e realizações.</p>
+        <p><span class="highlight">E é aqui que eu entro!</span></p>
+        <p><strong>Serviço de Reformulação de Currículo</strong><br>
+        ✓ Análise completa do seu currículo atual<br>
+        ✓ Reformulação com foco em clareza e objetividade<br>
+        ✓ Destaque de suas melhores competências<br>
+        ✓ Formatação profissional e atrativa</p>
+        <p>Por apenas <span class="price">R$ 20,00</span> <span style="font-size:0.8rem;">(valor promocional!)</span></p>
+        <p><span class="highlight">Resultado:</span> Um currículo pronto para ABRIR PORTAS para suas próximas oportunidades!</p>
+        <p><strong>Invista em você. Invista no seu currículo!</strong></p>
+        <small><i class="fas fa-star-of-life"></i> Após o cadastro, entraremos em contato em até 24h.</small>
+      </div>
+
+      <div class="input-group">
+        <label><i class="fas fa-user"></i> Nome completo</label>
+        <input type="text" id="nome" placeholder="Ex: Juliana Santiago">
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-phone-alt"></i> Telefone</label>
+        <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-envelope"></i> E-mail</label>
+        <input type="email" id="email" placeholder="contato@exemplo.com">
+      </div>
+      <button class="btn-cadastrar" id="btnCadastrar">
+        <i class="fas fa-save"></i> Concluir Cadastro
+      </button>
+    </div>
+  </div>
+</div>
+<div id="toastMsg" class="toast-msg"></div>
+
+<script>
+(function() {
+  const SUPABASE_URL = "https://hacjsffydpwgjbvyhejz.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhY2pzZmZ5ZHB3Z2pidnloZWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNzg5NDIsImV4cCI6MjA5NDk1NDk0Mn0.q7QE7kz8hEJujNi_I13ndOG7i0gyBpZ5oOOrJr47lMQ";
+  const EMAILJS_PUBLIC_KEY = "pm9LOwDggP90oHH_E";
+  const EMAILJS_SERVICE_ID = "service_9maebea";
+  const EMAILJS_TEMPLATE_ID = "template_trgm1wb";
+  const DESTINATARIOS = ["henrique002406.silva@gmail.com", "julianasantdu291@gmail.com"];
+  let supabase = null;
+
+  function showMessage(msg, isError = false) {
+    const toast = document.getElementById('toastMsg');
+    toast.textContent = msg;
+    toast.style.background = isError ? '#b91c1c' : '#1e293b';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+  function initSupabase() {
+    if (supabase) return true;
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return true;
+    } catch (e) { showMessage("Erro de conexão.", true); return false; }
+  }
+  async function enviarEmail(nome, telefone, email) {
+    if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === "SUA_PUBLIC_KEY_AQUI") return false;
+    try {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+      for (const dest of DESTINATARIOS) {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: dest, nome, telefone, email_cliente: email,
+          message: `Novo cadastro!\nNome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}`
+        });
+      }
+      return true;
+    } catch (err) { return false; }
+  }
+  async function salvarCadastro(nome, telefone, email) {
+    if (!initSupabase()) return false;
+    try {
+      const { error } = await supabase.from('cadastros').insert([{ nome, telefone, email }]);
+      if (error) { showMessage("Falha ao cadastrar.", true); return false; }
+      showMessage("✅ Cadastro realizado! Entraremos em contato em breve.");
+      enviarEmail(nome, telefone, email);
+      return true;
+    } catch (err) { showMessage("Erro de rede.", true); return false; }
+  }
+
+  const canvas = document.getElementById('star-canvas');
+  let ctx, stars = [], animId, splashActive = true;
+  function initStars() {
+    if (!canvas) return;
+    ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; generateStars(); }
+    function generateStars() {
+      const w = canvas.width, h = canvas.height;
+      const count = Math.min(200, Math.floor(w * h / 7000));
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * w, y: Math.random() * h, r: Math.random() * 2 + 0.5,
+          alpha: Math.random() * 0.7 + 0.2, speed: 0.005 + Math.random() * 0.02,
+          phase: Math.random() * Math.PI * 2, vx: (Math.random() - 0.5) * 0.08,
+          vy: (Math.random() - 0.5) * 0.08
+        });
+      }
+    }
+    window.addEventListener('resize', () => { if (splashActive) resize(); });
+    resize();
+    function draw() {
+      if (!ctx || !splashActive) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = Date.now() * 0.003;
+      for (let s of stars) {
+        s.x += s.vx; s.y += s.vy;
+        if (s.x < 0) s.x = canvas.width; if (s.x > canvas.width) s.x = 0;
+        if (s.y < 0) s.y = canvas.height; if (s.y > canvas.height) s.y = 0;
+        const twinkle = Math.sin(now * s.speed + s.phase) * 0.5 + 0.6;
+        const alpha = Math.min(0.9, s.alpha * twinkle);
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(243, 223, 150, ${alpha})`;
+        ctx.shadowBlur = 5; ctx.fill();
+        if (s.r > 1.2 && twinkle > 0.7) {
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r + 1, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212, 175, 55, 0.15)`;
+          ctx.fill();
+        }
+      }
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+  function stopStars() { if (animId) cancelAnimationFrame(animId); splashActive = false; }
+
+  function createSurroundingStars() {
+    const container = document.getElementById('starBg');
+    if (!container) return;
+    container.innerHTML = '';
+    const starCount = 40;
+    for (let i = 0; i < starCount; i++) {
+      const star = document.createElement('i');
+      star.className = 'fas fa-star';
+      const size = Math.random() * 0.8 + 0.6;
+      star.style.fontSize = `${size}rem`;
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.top = `${Math.random() * 100}%`;
+      star.style.animationDelay = `${Math.random() * 12}s`;
+      star.style.animationDuration = `${6 + Math.random() * 8}s`;
+      star.style.opacity = `${Math.random() * 0.6 + 0.3}`;
+      container.appendChild(star);
+    }
+  }
+
+  const splashDiv = document.getElementById('splashScreen');
+  const cadastroDiv = document.getElementById('cadastroContainer');
+  const btn = document.getElementById('btnCadastrar');
+  const nomeInput = document.getElementById('nome');
+  const telefoneInput = document.getElementById('telefone');
+  const emailInput = document.getElementById('email');
+  function mostrarFormulario() {
+    if (!splashDiv.classList.contains('hide')) {
+      splashDiv.classList.add('hide');
+      stopStars();
+      cadastroDiv.classList.add('show');
+      createSurroundingStars();
+    }
+  }
+  splashDiv.addEventListener('click', mostrarFormulario);
+  let touchY = 0;
+  splashDiv.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; });
+  splashDiv.addEventListener('touchend', e => { if (touchY - e.changedTouches[0].clientY > 40) mostrarFormulario(); });
+
+  btn.addEventListener('click', async () => {
+    const nome = nomeInput.value.trim();
+    const telefone = telefoneInput.value.trim();
+    const email = emailInput.value.trim();
+    if (!nome || !telefone || !email) { showMessage("Preencha todos os campos.", true); return; }
+    if (!email.includes('@') || !email.includes('.')) { showMessage("E-mail inválido.", true); return; }
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Enviando...';
+    const ok = await salvarCadastro(nome, telefone, email);
+    btn.disabled = false;
+    btn.innerHTML = original;
+    if (ok) {
+      nomeInput.value = ''; telefoneInput.value = ''; emailInput.value = ''; nomeInput.focus();
+    }
+  });
+  window.addEventListener('load', initStars);
+})();
+</script>
+</body>
+</html>
