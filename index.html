@@ -384,7 +384,7 @@
 
   // Função que redireciona para o WhatsApp já com a mensagem pronta
   function redirecionarWhatsApp(nome, telefone, email) {
-    const mensagem = `Olá! 👋 \n\nAcabei de me cadastrar no site de vocês e tenho interesse em conhecer mais sobre o seu serviço!\n\nMeus dados:\nNome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}\n\nPodemos conversar?`;
+    const mensagem = `Olá! 👋 \n\nAcabei de me cadastrar no site e tenho interesse em conhecer mais sobre o seu serviço!\n\nMeus dados:\nNome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}\n\nPodemos conversar?`;
     const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
   }
