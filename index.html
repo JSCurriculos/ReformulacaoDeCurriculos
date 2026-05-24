@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -19,7 +19,8 @@
       color: #e2e8f0;
       overflow-x: hidden;
     }
-    /* SPLASH - mesma fonte do gerador */
+
+    /* SPLASH */
     .splash {
       position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
       background: radial-gradient(circle at 30% 20%, #0a1a2a, #020b14);
@@ -48,7 +49,6 @@
       0%,100% { box-shadow: 0 0 30px rgba(212,175,55,0.25); border-color: rgba(212,175,55,0.4); }
       50% { box-shadow: 0 0 55px rgba(212,175,55,0.5); border-color: rgba(212,175,55,0.8); }
     }
-    /* LOGO com Cormorant Garamond */
     .splash-logo span {
       font-size: 5rem;
       font-family: 'Cormorant Garamond', serif;
@@ -59,7 +59,6 @@
       color: transparent;
       letter-spacing: 4px;
     }
-    /* TÍTULO com Cormorant Garamond */
     .splash h1 {
       font-size: 2.8rem;
       font-family: 'Cormorant Garamond', serif;
@@ -71,7 +70,6 @@
       color: transparent;
       margin-bottom: 12px;
     }
-    /* SUBTÍTULO com Cormorant Garamond, mais elegante */
     .splash p {
       font-family: 'Cormorant Garamond', serif;
       color: #cdba7a;
@@ -95,7 +93,7 @@
       50% { transform: translateY(-10px); opacity: 1; }
     }
 
-    /* FORMULÁRIO (mantido igual) */
+    /* FORMULÁRIO */
     .cadastro-container {
       min-height: 100vh;
       display: flex;
@@ -193,6 +191,16 @@
       color: #d4af37;
       font-family: 'Cormorant Garamond', serif;
       letter-spacing: 1px;
+    }
+    .offer-highlight .whatsapp-note {
+      background: #25d36620;
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      text-align: center;
+      color: #25d366;
+      font-weight: 500;
     }
     .input-group {
       margin-bottom: 24px;
@@ -316,7 +324,12 @@
         <p>Por apenas <span class="price">R$ 20,00</span> <span style="font-size:0.8rem;">(valor promocional!)</span></p>
         <p><span class="highlight">Resultado:</span> Um currículo pronto para ABRIR PORTAS para suas próximas oportunidades!</p>
         <p><strong>Invista em você. Invista no seu currículo!</strong></p>
-        <small><i class="fas fa-star-of-life"></i> Após o cadastro, entraremos em contato em até 24h.</small>
+        
+        <!-- NOVO: aviso sobre o redirecionamento para o WhatsApp -->
+        <div class="whatsapp-note">
+          <i class="fab fa-whatsapp"></i> Após o cadastro, você será redirecionado para o nosso WhatsApp para finalizar o atendimento.
+        </div>
+        <small><i class="fas fa-star-of-life"></i> Seus dados ficam salvos e você será atendido rapidamente.</small>
       </div>
 
       <div class="input-group">
@@ -341,12 +354,13 @@
 
 <script>
 (function() {
+  // ==================== CONFIGURAÇÕES ====================
   const SUPABASE_URL = "https://hacjsffydpwgjbvyhejz.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhY2pzZmZ5ZHB3Z2pidnloZWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNzg5NDIsImV4cCI6MjA5NDk1NDk0Mn0.q7QE7kz8hEJujNi_I13ndOG7i0gyBpZ5oOOrJr47lMQ";
-  const EMAILJS_PUBLIC_KEY = "pm9LOwDggP90oHH_E";
-  const EMAILJS_SERVICE_ID = "service_9maebea";
-  const EMAILJS_TEMPLATE_ID = "template_trgm1wb";
-  const DESTINATARIOS = ["henrique002406.silva@gmail.com", "julianasantdu291@gmail.com"];
+
+  // 🔁 Substitua pelo número do seu WhatsApp Business (código do país + DDD + número)
+  const WHATSAPP_NUMBER = "5522974041267"; // Exemplo: 55 (Brasil) + 22 (DDD) + 999999999
+
   let supabase = null;
 
   function showMessage(msg, isError = false) {
@@ -356,39 +370,54 @@
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3500);
   }
+
   function initSupabase() {
     if (supabase) return true;
     try {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       return true;
-    } catch (e) { showMessage("Erro de conexão.", true); return false; }
-  }
-  async function enviarEmail(nome, telefone, email) {
-    if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === "SUA_PUBLIC_KEY_AQUI") return false;
-    try {
-      emailjs.init(EMAILJS_PUBLIC_KEY);
-      for (const dest of DESTINATARIOS) {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_email: dest, nome, telefone, email_cliente: email,
-          message: `Novo cadastro!\nNome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}`
-        });
-      }
-      return true;
-    } catch (err) { return false; }
-  }
-  async function salvarCadastro(nome, telefone, email) {
-    if (!initSupabase()) return false;
-    try {
-      const { error } = await supabase.from('cadastros').insert([{ nome, telefone, email }]);
-      if (error) { showMessage("Falha ao cadastrar.", true); return false; }
-      showMessage("✅ Cadastro realizado! Entraremos em contato em breve.");
-      enviarEmail(nome, telefone, email);
-      return true;
-    } catch (err) { showMessage("Erro de rede.", true); return false; }
+    } catch (e) {
+      showMessage("Erro de conexão.", true);
+      return false;
+    }
   }
 
+  // Função que redireciona para o WhatsApp já com a mensagem pronta
+  function redirecionarWhatsApp(nome, telefone, email) {
+    const mensagem = `Olá! 👋 \n\nAcabei de me cadastrar no site de vocês e tenho interesse em conhecer mais sobre o seu serviço!\n\nMeus dados:\nNome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}\n\nPodemos conversar?`;
+    const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  }
+
+  async function salvarCadastro(nome, telefone, email) {
+    if (!initSupabase()) return false;
+
+    try {
+      const { error } = await supabase
+        .from('cadastros')
+        .insert([{ nome, telefone, email }]);
+
+      if (error) {
+        console.error(error);
+        showMessage("Falha ao cadastrar. Tente novamente.", true);
+        return false;
+      }
+
+      showMessage("✅ Cadastro realizado! Você será redirecionado para o WhatsApp.");
+      // Redireciona para o WhatsApp após 1 segundo (para a mensagem de sucesso ser lida)
+      setTimeout(() => redirecionarWhatsApp(nome, telefone, email), 1000);
+      return true;
+    } catch (err) {
+      console.error(err);
+      showMessage("Erro de rede. Verifique sua conexão.", true);
+      return false;
+    }
+  }
+
+  // ==================== ESTRELAS DO SPLASH ====================
   const canvas = document.getElementById('star-canvas');
   let ctx, stars = [], animId, splashActive = true;
+
   function initStars() {
     if (!canvas) return;
     ctx = canvas.getContext('2d');
@@ -433,6 +462,7 @@
   }
   function stopStars() { if (animId) cancelAnimationFrame(animId); splashActive = false; }
 
+  // ==================== ESTRELAS EM VOLTA DO CARD ====================
   function createSurroundingStars() {
     const container = document.getElementById('starBg');
     if (!container) return;
@@ -452,12 +482,14 @@
     }
   }
 
+  // ==================== FLUXO SPLASH → FORMULÁRIO ====================
   const splashDiv = document.getElementById('splashScreen');
   const cadastroDiv = document.getElementById('cadastroContainer');
   const btn = document.getElementById('btnCadastrar');
   const nomeInput = document.getElementById('nome');
   const telefoneInput = document.getElementById('telefone');
   const emailInput = document.getElementById('email');
+
   function mostrarFormulario() {
     if (!splashDiv.classList.contains('hide')) {
       splashDiv.classList.add('hide');
@@ -466,27 +498,44 @@
       createSurroundingStars();
     }
   }
+
   splashDiv.addEventListener('click', mostrarFormulario);
   let touchY = 0;
   splashDiv.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; });
   splashDiv.addEventListener('touchend', e => { if (touchY - e.changedTouches[0].clientY > 40) mostrarFormulario(); });
 
+  // ==================== EVENTO DO BOTÃO DE CADASTRO ====================
   btn.addEventListener('click', async () => {
     const nome = nomeInput.value.trim();
     const telefone = telefoneInput.value.trim();
     const email = emailInput.value.trim();
-    if (!nome || !telefone || !email) { showMessage("Preencha todos os campos.", true); return; }
-    if (!email.includes('@') || !email.includes('.')) { showMessage("E-mail inválido.", true); return; }
-    const original = btn.innerHTML;
+
+    if (!nome || !telefone || !email) {
+      showMessage("Preencha todos os campos.", true);
+      return;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+      showMessage("Digite um e-mail válido.", true);
+      return;
+    }
+
+    const originalHtml = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Enviando...';
-    const ok = await salvarCadastro(nome, telefone, email);
+
+    const sucesso = await salvarCadastro(nome, telefone, email);
+
     btn.disabled = false;
-    btn.innerHTML = original;
-    if (ok) {
-      nomeInput.value = ''; telefoneInput.value = ''; emailInput.value = ''; nomeInput.focus();
+    btn.innerHTML = originalHtml;
+
+    if (sucesso) {
+      nomeInput.value = '';
+      telefoneInput.value = '';
+      emailInput.value = '';
+      nomeInput.focus();
     }
   });
+
   window.addEventListener('load', initStars);
 })();
 </script>
